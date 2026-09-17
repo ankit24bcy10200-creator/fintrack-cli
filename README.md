@@ -5,6 +5,7 @@
 [![Design Patterns](https://img.shields.io/badge/Design%20Patterns-Factory%20%7C%20Strategy%20%7C%20Observer%20%7C%20Singleton-orange.svg)]()
 [![Persistence](https://img.shields.io/badge/Persistence-Atomic%20JSON%20%2B%20CSV-purple.svg)]()
 [![Tests](https://img.shields.io/badge/Tests-JUnit%205-brightgreen.svg)]()
+[![Project Report](https://img.shields.io/badge/Project%20Report-15--Section%20Academic%20Report-informational.svg)](PROJECT_REPORT.md)
 
 > A robust, terminal-native personal finance manager built in Core Java that goes beyond standard transaction tracking by integrating a **statistical anomaly-detection engine** (Z-Score and Interquartile Range / IQR) to proactively flag irregular spending behavior in real time.
 
@@ -36,9 +37,9 @@ FinTrack CLI adheres strictly to the four foundational pillars of Object-Oriente
 
 | OOP Pillar | Concrete Implementation in FinTrack CLI |
 |---|---|
-| **Abstraction** | Abstract base class [`Account`](file:///src/main/java/fintrack/model/Account.java) defines financial contracts (`withdraw`, `deposit`, `calculateMonthlyInterest`, `getAvailableFunds`). Callers interact with abstract contracts without depending on underlying implementation. Interfaces [`AnomalyDetectionStrategy`](file:///src/main/java/fintrack/strategy/AnomalyDetectionStrategy.java) and [`AlertObserver`](file:///src/main/java/fintrack/observer/AlertObserver.java) abstract outlier algorithms and notification mechanisms. |
-| **Inheritance** | [`SavingsAccount`](file:///src/main/java/fintrack/model/SavingsAccount.java), [`CheckingAccount`](file:///src/main/java/fintrack/model/CheckingAccount.java), and [`CreditAccount`](file:///src/main/java/fintrack/model/CreditAccount.java) inherit from [`Account`](file:///src/main/java/fintrack/model/Account.java), inheriting common attributes (ID, user, balance, timestamps) while specializing financial rules. |
-| **Polymorphism** | Dynamic method dispatch enables polymorphic withdrawal checks (Checking allows overdraft up to limit with optional fee; Savings enforces minimum balance constraint; Credit tracks debt line). At runtime, [`AnomalyService`](file:///src/main/java/fintrack/service/AnomalyService.java) polymorphically invokes whichever statistical strategy is currently selected. |
+| **Abstraction** | Abstract base class [`Account`](src/main/java/fintrack/model/Account.java) defines financial contracts (`withdraw`, `deposit`, `calculateMonthlyInterest`, `getAvailableFunds`). Callers interact with abstract contracts without depending on underlying implementation. Interfaces [`AnomalyDetectionStrategy`](src/main/java/fintrack/strategy/AnomalyDetectionStrategy.java) and [`AlertObserver`](src/main/java/fintrack/observer/AlertObserver.java) abstract outlier algorithms and notification mechanisms. |
+| **Inheritance** | [`SavingsAccount`](src/main/java/fintrack/model/SavingsAccount.java), [`CheckingAccount`](src/main/java/fintrack/model/CheckingAccount.java), and [`CreditAccount`](src/main/java/fintrack/model/CreditAccount.java) inherit from [`Account`](src/main/java/fintrack/model/Account.java), inheriting common attributes (ID, user, balance, timestamps) while specializing financial rules. |
+| **Polymorphism** | Dynamic method dispatch enables polymorphic withdrawal checks (Checking allows overdraft up to limit with optional fee; Savings enforces minimum balance constraint; Credit tracks debt line). At runtime, [`AnomalyService`](src/main/java/fintrack/service/AnomalyService.java) polymorphically invokes whichever statistical strategy is currently selected. |
 | **Encapsulation** | All model fields are private/protected. State mutations occur solely through validated mutators. Critical business logic enforces invariants (e.g. positive amounts, valid dates, salt-hash verification). Passwords are never stored in plaintext. |
 
 ---
@@ -49,30 +50,30 @@ FinTrack CLI explicitly implements 4 classic Gang of Four (GoF) design patterns:
 
 ### 1. Factory Pattern (`AccountFactory`)
 - **Package**: `fintrack.factory`
-- **Class**: [`AccountFactory`](file:///src/main/java/fintrack/factory/AccountFactory.java)
+- **Class**: [`AccountFactory`](src/main/java/fintrack/factory/AccountFactory.java)
 - **Purpose**: Decouples the client UI and service layer from concrete account classes. Based on the selected `AccountType` (`SAVINGS`, `CHECKING`, `CREDIT`), the factory instantiates the proper subclass and validates type-specific parameters (e.g., minimum balance, overdraft limit, APR).
 
 ### 2. Strategy Pattern (`AnomalyDetectionStrategy`)
 - **Package**: `fintrack.strategy`
-- **Interface**: [`AnomalyDetectionStrategy`](file:///src/main/java/fintrack/strategy/AnomalyDetectionStrategy.java)
+- **Interface**: [`AnomalyDetectionStrategy`](src/main/java/fintrack/strategy/AnomalyDetectionStrategy.java)
 - **Concrete Strategies**:
-  - [`ZScoreStrategy`](file:///src/main/java/fintrack/strategy/ZScoreStrategy.java): Parametric statistical model based on historical mean and standard deviation.
-  - [`IQRStrategy`](file:///src/main/java/fintrack/strategy/IQRStrategy.java): Non-parametric Tukey fence model based on quartiles ($Q_1, Q_3$).
+  - [`ZScoreStrategy`](src/main/java/fintrack/strategy/ZScoreStrategy.java): Parametric statistical model based on historical mean and standard deviation.
+  - [`IQRStrategy`](src/main/java/fintrack/strategy/IQRStrategy.java): Non-parametric Tukey fence model based on quartiles ($Q_1, Q_3$).
 - **Purpose**: Allows users to dynamically switch between outlier detection algorithms and tune sensitivity thresholds at runtime without modifying business logic.
 
 ### 3. Observer Pattern (`AlertPublisher`, `AlertObserver`)
 - **Package**: `fintrack.observer`
-- **Subject**: [`AlertPublisher`](file:///src/main/java/fintrack/observer/AlertPublisher.java)
-- **Interface**: [`AlertObserver`](file:///src/main/java/fintrack/observer/AlertObserver.java)
+- **Subject**: [`AlertPublisher`](src/main/java/fintrack/observer/AlertPublisher.java)
+- **Interface**: [`AlertObserver`](src/main/java/fintrack/observer/AlertObserver.java)
 - **Subscribers**:
-  - [`BudgetObserver`](file:///src/main/java/fintrack/observer/BudgetObserver.java): Listens for budget threshold events (80% warning, 100% breach).
-  - [`AnomalyObserver`](file:///src/main/java/fintrack/observer/AnomalyObserver.java): Listens for flagged outlier events and renders warning banners.
-  - [`AuditLogObserver`](file:///src/main/java/fintrack/observer/AuditLogObserver.java): Persists all critical security and financial events to `data/audit.log`.
+  - [`BudgetObserver`](src/main/java/fintrack/observer/BudgetObserver.java): Listens for budget threshold events (80% warning, 100% breach).
+  - [`AnomalyObserver`](src/main/java/fintrack/observer/AnomalyObserver.java): Listens for flagged outlier events and renders warning banners.
+  - [`AuditLogObserver`](src/main/java/fintrack/observer/AuditLogObserver.java): Persists all critical security and financial events to `data/audit.log`.
 - **Purpose**: Completely decouples transaction recording from downstream notifications and logging actions.
 
 ### 4. Singleton Pattern (`Logger`)
 - **Package**: `fintrack.util`
-- **Class**: [`Logger`](file:///src/main/java/fintrack/util/Logger.java)
+- **Class**: [`Logger`](src/main/java/fintrack/util/Logger.java)
 - **Purpose**: Employs the thread-safe Bill Pugh Initialization-on-Demand Holder idiom. Ensures a single centralized logging manager across threads, writing timestamped logs with levels (`DEBUG`, `INFO`, `WARN`, `ERROR`) to `data/fintrack.log`.
 
 ---
@@ -284,10 +285,12 @@ Test run finished after 340 ms
 
 ## Documentation & Diagrams
 
-Complete system design diagrams are located in the [`docs/`](file:///docs/) directory:
-- **[Full 15-Section Project Report](file:///docs/PROJECT_REPORT.md)**
-- **[System Architecture Diagram](file:///docs/architecture_diagram.mermaid)**
-- **[Class Diagram & Inheritance Hierarchy](file:///docs/class_diagram.mermaid)**
-- **[Sequence Diagram: Transaction & Anomaly Flow](file:///docs/sequence_diagram.mermaid)**
-- **[Use Case Diagram](file:///docs/use_case_diagram.mermaid)**
-- **[Workflow Diagram](file:///docs/workflow_diagram.mermaid)**
+Comprehensive documentation and academic resources:
+- 📄 **[Full 15-Section Project Report (Markdown)](PROJECT_REPORT.md)** (also in [`docs/PROJECT_REPORT.md`](docs/PROJECT_REPORT.md))
+- 🌐 **[Printable HTML Project Report](docs/PROJECT_REPORT.html)** (open in browser -> Save as PDF)
+- 📋 **[Project Statement & Problem Scope](statement.md)**
+- 📐 **[System Architecture Diagram](docs/architecture_diagram.mermaid)**
+- 📊 **[Class Diagram & Inheritance Hierarchy](docs/class_diagram.mermaid)**
+- 🔄 **[Sequence Diagram: Transaction & Anomaly Flow](docs/sequence_diagram.mermaid)**
+- 🎯 **[Use Case Diagram](docs/use_case_diagram.mermaid)**
+- 🔀 **[Workflow Diagram](docs/workflow_diagram.mermaid)**
