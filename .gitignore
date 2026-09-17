@@ -1,0 +1,11 @@
+# FinTrack CLI Git Ignore
+target/
+*.class
+*.log
+*.tmp
+.DS_Store
+.idea/
+*.iml
+.vscode/
+data/test_*.json
+tools/maven.zip
