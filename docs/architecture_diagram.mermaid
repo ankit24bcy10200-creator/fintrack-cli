@@ -1,0 +1,101 @@
+flowchart TD
+    subgraph PresentationLayer["Presentation Layer (CLI)"]
+        CliApp["CliApp (Main Entry Point)"]
+        MenuController["Menu (Interactive Submenus)"]
+        ConsoleUtil["ConsoleUtil (ANSI Tables & Prompts)"]
+    end
+
+    subgraph ServiceLayer["Service Layer (Business Logic)"]
+        AuthService["AuthService (Session & Security)"]
+        AccountService["AccountService (Account Operations)"]
+        TransactionService["TransactionService (Financial Operations)"]
+        BudgetService["BudgetService (Threshold Alerts)"]
+        AnomalyService["AnomalyService (Statistical Orchestrator)"]
+        ReportService["ReportService (Trends & Breakdowns)"]
+    end
+
+    subgraph DesignPatterns["Design Patterns Layer"]
+        subgraph FactoryPattern["Factory Pattern"]
+            AccountFactory["AccountFactory"]
+        end
+
+        subgraph StrategyPattern["Strategy Pattern"]
+            AnomalyStrategy["«interface» AnomalyDetectionStrategy"]
+            ZScore["ZScoreStrategy (Parametric)"]
+            IQR["IQRStrategy (Non-Parametric)"]
+        end
+
+        subgraph ObserverPattern["Observer Pattern"]
+            AlertPublisher["AlertPublisher (Subject)"]
+            AlertObserver["«interface» AlertObserver"]
+            BudgetObserver["BudgetObserver"]
+            AnomalyObserver["AnomalyObserver"]
+            AuditObserver["AuditLogObserver"]
+        end
+
+        subgraph SingletonPattern["Singleton Pattern"]
+            Logger["Logger (Bill Pugh Singleton)"]
+        end
+    end
+
+    subgraph DomainModel["Domain Model Layer"]
+        Account["«abstract» Account"]
+        SavingsAccount["SavingsAccount"]
+        CheckingAccount["CheckingAccount"]
+        CreditAccount["CreditAccount"]
+        Transaction["Transaction"]
+        Budget["Budget"]
+        User["User"]
+        AnomalyResult["AnomalyResult"]
+    end
+
+    subgraph PersistenceLayer["Persistence Layer"]
+        JsonFileStore["JsonFileStore (Atomic JSON Storage)"]
+        AccountAdapter["AccountAdapter (Polymorphic Gson Adapter)"]
+        CsvExporter["CsvExporter (CSV Reports)"]
+        JsonFile["data/fintrack_data.json"]
+        AuditLog["data/audit.log"]
+        AppLog["data/fintrack.log"]
+    end
+
+    CliApp --> MenuController
+    MenuController --> ConsoleUtil
+    MenuController --> AuthService
+    MenuController --> AccountService
+    MenuController --> TransactionService
+    MenuController --> BudgetService
+    MenuController --> AnomalyService
+    MenuController --> ReportService
+
+    AccountService --> AccountFactory
+    AccountFactory --> SavingsAccount
+    AccountFactory --> CheckingAccount
+    AccountFactory --> CreditAccount
+
+    TransactionService --> AnomalyService
+    TransactionService --> BudgetService
+    TransactionService --> AlertPublisher
+
+    AnomalyService --> AnomalyStrategy
+    AnomalyStrategy <|.. ZScore
+    AnomalyStrategy <|.. IQR
+
+    AlertPublisher --> AlertObserver
+    AlertObserver <|.. BudgetObserver
+    AlertObserver <|.. AnomalyObserver
+    AlertObserver <|.. AuditObserver
+
+    Account <|-- SavingsAccount
+    Account <|-- CheckingAccount
+    Account <|-- CreditAccount
+
+    AuthService --> JsonFileStore
+    AccountService --> JsonFileStore
+    TransactionService --> JsonFileStore
+    BudgetService --> JsonFileStore
+    ReportService --> CsvExporter
+
+    JsonFileStore --> AccountAdapter
+    JsonFileStore --> JsonFile
+    AuditObserver --> AuditLog
+    Logger --> AppLog

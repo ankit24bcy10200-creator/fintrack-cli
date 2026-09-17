@@ -1,0 +1,51 @@
+flowchart LR
+    User(["Authenticated User"])
+    System(["FinTrack System / Background Engine"])
+
+    subgraph AuthModule["Module 1: Authentication & Account Management"]
+        UC1["Register New Account"]
+        UC2["Login (Salted SHA-256)"]
+        UC3["Create Account (Savings / Checking / Credit)"]
+        UC4["View / Rename / Delete Accounts"]
+    end
+
+    subgraph TxnModule["Module 2: Transaction & Budget Management"]
+        UC5["Record Expense / Income"]
+        UC6["Transfer Funds Between Accounts"]
+        UC7["Set Monthly Category Budget"]
+        UC8["View Budget Utilization & Progress"]
+        UC9["Export Data to CSV"]
+    end
+
+    subgraph AnomalyModule["Module 3: Anomaly Detection Engine"]
+        UC10["Configure Strategy (Z-Score / IQR)"]
+        UC11["Run Historical Anomaly Scan"]
+        UC12["Simulate 'What-If' Outlier"]
+        UC13["Receive Real-time Alert (Observer)"]
+    end
+
+    subgraph ReportModule["Module 4: Analytics & Reporting"]
+        UC14["View Spending Breakdown by Category"]
+        UC15["View Monthly Cash Flow Trends"]
+        UC16["Executive Financial Health Dashboard"]
+    end
+
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+    User --> UC10
+    User --> UC11
+    User --> UC12
+    User --> UC14
+    User --> UC15
+    User --> UC16
+
+    UC5 -.->|triggers| UC13
+    UC5 -.->|checks| UC8
+    System --> UC13

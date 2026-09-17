@@ -1,0 +1,46 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant Menu as MenuController
+    participant TxnService as TransactionService
+    participant Account as Account (Polymorphic)
+    participant AnomalySvc as AnomalyService
+    participant Strategy as AnomalyDetectionStrategy
+    participant BudgetSvc as BudgetService
+    participant Store as JsonFileStore
+    participant Publisher as AlertPublisher
+    participant Observers as AlertObservers (Budget, Anomaly, Audit)
+
+    User->>Menu: Enter Transaction (Account, Category, ₹ Amount)
+    Menu->>TxnService: addTransaction(userId, accountId, type, category, amount, date, desc)
+    
+    %% Polymorphic Withdrawal
+    TxnService->>Account: withdraw(amount)
+    Account-->>TxnService: true (Balance updated respecting type rules)
+
+    %% Statistical Anomaly Evaluation
+    TxnService->>AnomalySvc: evaluateTransaction(targetTxn, history)
+    AnomalySvc->>Strategy: evaluate(target, history, sensitivity)
+    Strategy-->>AnomalySvc: AnomalyResult (isAnomaly=true, score, reason)
+    AnomalySvc-->>TxnService: AnomalyResult
+
+    alt Anomaly Detected
+        TxnService->>Publisher: notifyObservers(ANOMALY_DETECTED, reason)
+        Publisher->>Observers: onAlert(ANOMALY_DETECTED)
+        Observers-->>User: Display Anomaly Alert Banner & log to audit.log
+    end
+
+    %% Persist
+    TxnService->>Store: saveData(updatedData)
+    Store-->>TxnService: Saved atomically
+
+    %% Monthly Budget Check
+    TxnService->>BudgetSvc: checkBudgetThresholds(userId, category, date, txns)
+    alt Budget >= 80% or > 100%
+        BudgetSvc->>Publisher: notifyObservers(BUDGET_WARNING / BREACHED)
+        Publisher->>Observers: onAlert(BUDGET_WARNING / BREACHED)
+        Observers-->>User: Display Budget Warning / Breach Alert
+    end
+
+    TxnService-->>Menu: Transaction Object
+    Menu-->>User: Display Success Confirmation & Receipt

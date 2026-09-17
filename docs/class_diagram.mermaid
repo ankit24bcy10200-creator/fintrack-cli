@@ -1,0 +1,162 @@
+classDiagram
+    direction TB
+
+    %% Abstract Base Account and Subclasses (Inheritance + Abstraction)
+    class Account {
+        <<abstract>>
+        #String accountId
+        #String userId
+        #String accountName
+        #AccountType accountType
+        #double balance
+        #String createdAt
+        +withdraw(double amount)* boolean
+        +deposit(double amount)* boolean
+        +calculateMonthlyInterest()* double
+        +getAvailableFunds()* double
+        +getAccountSummary()* String
+    }
+
+    class SavingsAccount {
+        -double interestRate
+        -double minimumBalance
+        +withdraw(double amount) boolean
+        +deposit(double amount) boolean
+        +calculateMonthlyInterest() double
+        +getAvailableFunds() double
+        +getAccountSummary() String
+    }
+
+    class CheckingAccount {
+        -double overdraftLimit
+        -double transactionFee
+        +withdraw(double amount) boolean
+        +deposit(double amount) boolean
+        +calculateMonthlyInterest() double
+        +getAvailableFunds() double
+        +getAccountSummary() String
+    }
+
+    class CreditAccount {
+        -double creditLimit
+        -double annualPercentageRate
+        +withdraw(double amount) boolean
+        +deposit(double amount) boolean
+        +calculateMonthlyInterest() double
+        +getAvailableFunds() double
+        +getAccountSummary() String
+    }
+
+    Account <|-- SavingsAccount : extends
+    Account <|-- CheckingAccount : extends
+    Account <|-- CreditAccount : extends
+
+    %% Factory Pattern
+    class AccountFactory {
+        +createAccount(AccountType, String, String, double, double, double)$ Account
+        +createAccountWithId(AccountType, String, String, String, double, double, double)$ Account
+    }
+    AccountFactory ..> Account : instantiates
+
+    %% Strategy Pattern
+    class AnomalyDetectionStrategy {
+        <<interface>>
+        +getStrategyName()* String
+        +getDescription()* String
+        +evaluate(Transaction, List~Transaction~, double)* AnomalyResult
+        +detectAll(List~Transaction~, double)* List~AnomalyResult~
+    }
+
+    class ZScoreStrategy {
+        +getStrategyName() String
+        +getDescription() String
+        +evaluate(Transaction, List~Transaction~, double) AnomalyResult
+        +detectAll(List~Transaction~, double) List~AnomalyResult~
+    }
+
+    class IQRStrategy {
+        +getStrategyName() String
+        +getDescription() String
+        +evaluate(Transaction, List~Transaction~, double) AnomalyResult
+        +detectAll(List~Transaction~, double) List~AnomalyResult~
+    }
+
+    AnomalyDetectionStrategy <|.. ZScoreStrategy : implements
+    AnomalyDetectionStrategy <|.. IQRStrategy : implements
+
+    %% Observer Pattern
+    class AlertObserver {
+        <<interface>>
+        +onAlert(AlertEvent)* void
+    }
+
+    class AlertPublisher {
+        -List~AlertObserver~ observers
+        +attach(AlertObserver) void
+        +detach(AlertObserver) void
+        +notifyObservers(AlertEvent) void
+    }
+
+    class BudgetObserver {
+        -List~AlertEvent~ budgetAlerts
+        +onAlert(AlertEvent) void
+    }
+
+    class AnomalyObserver {
+        -List~AlertEvent~ anomalyAlerts
+        +onAlert(AlertEvent) void
+    }
+
+    class AuditLogObserver {
+        -String logFilePath
+        +onAlert(AlertEvent) void
+    }
+
+    AlertObserver <|.. BudgetObserver : implements
+    AlertObserver <|.. AnomalyObserver : implements
+    AlertObserver <|.. AuditLogObserver : implements
+    AlertPublisher o-- AlertObserver : notifies
+
+    %% Singleton Pattern
+    class Logger {
+        -Logger()
+        -InstanceHolder INSTANCE$
+        +getInstance()$ Logger
+        +info(String) void
+        +warn(String) void
+        +error(String, Throwable) void
+        +debug(String) void
+    }
+
+    %% Domain Models
+    class Transaction {
+        -String transactionId
+        -String userId
+        -String accountId
+        -TransactionType type
+        -Category category
+        -double amount
+        -String date
+        -boolean flaggedAsAnomaly
+        -String anomalyReason
+    }
+
+    class Budget {
+        -String budgetId
+        -String userId
+        -Category category
+        -double monthlyLimit
+        -int month
+        -int year
+        -boolean warningAlertSent
+        -boolean breachAlertSent
+    }
+
+    class User {
+        -String userId
+        -String username
+        -String saltHex
+        -String passwordHashHex
+        -String fullName
+        -String activeStrategy
+    }

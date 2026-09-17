@@ -1,0 +1,38 @@
+flowchart TD
+    Start(["Launch FinTrack CLI"]) --> AuthCheck{"Authenticated?"}
+    
+    AuthCheck -- No --> AuthMenu["Auth Menu: 1. Login / 2. Register"]
+    AuthMenu --> AuthAction{"Selected Action"}
+    AuthAction -- Register --> DoRegister["Enter Credentials -> SHA-256 + Salt -> Persist"] --> AuthMenu
+    AuthAction -- Login --> DoLogin["Verify Salted Hash -> Create Session"] --> Dashboard["FinTrack Main Dashboard"]
+
+    AuthCheck -- Yes --> Dashboard
+
+    Dashboard --> Choice{"Select Module"}
+
+    Choice -- 1. Accounts --> AccFlow["Account Factory: Create Savings/Checking/Credit"]
+    Choice -- 2. Transactions --> TxnFlow["Record Expense / Income / Transfer"]
+    Choice -- 3. Budgets --> BgtFlow["Configure Monthly Category Limits"]
+    Choice -- 4. Anomaly Engine --> AnomalyFlow["Historical Scan / What-If / View Flagged"]
+    Choice -- 5. Reports --> ReportFlow["Category Breakdown / Trends / CSV Export"]
+    Choice -- 6. Settings --> SetFlow["Switch Z-Score <-> IQR & Adjust Sensitivity"]
+    Choice -- 7. Seed Demo --> SeedFlow["Populate 20+ Realistic Transactions with Outliers"]
+    Choice -- 8. Logout --> LogoutAction["Clear Session & Terminate"]
+
+    TxnFlow --> EvalEngine["Statistical Engine: Evaluate Z-Score / IQR"]
+    EvalEngine --> CheckOutlier{"Is Outlier?"}
+    CheckOutlier -- Yes --> FireAnomalyAlert["Observer: Trigger Anomaly Alert Banner"] --> CheckBudget
+    CheckOutlier -- No --> CheckBudget{"Check Category Budget"}
+
+    CheckBudget -- "Spent >= 80%" --> FireWarnAlert["Observer: Trigger Budget Warning Alert"] --> SaveDB
+    CheckBudget -- "Spent > 100%" --> FireBreachAlert["Observer: Trigger Budget Breach Alert"] --> SaveDB
+    CheckBudget -- "Within Budget" --> SaveDB["Atomic JSON Persistence"]
+
+    SaveDB --> Dashboard
+    AccFlow --> SaveDB
+    BgtFlow --> SaveDB
+    AnomalyFlow --> Dashboard
+    ReportFlow --> Dashboard
+    SetFlow --> SaveDB
+    SeedFlow --> SaveDB
+    LogoutAction --> EndNode(["Exit Application"])
