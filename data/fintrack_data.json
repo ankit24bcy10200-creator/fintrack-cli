@@ -10,6 +10,17 @@
       "activeStrategy": "Z_SCORE",
       "zScoreThreshold": 2.5,
       "iqrMultiplier": 1.5
+    },
+    {
+      "userId": "USR-A1083838",
+      "username": "ankinimma65",
+      "saltHex": "6b0fd1e28f2ba0100408c044998112fa",
+      "passwordHashHex": "3891d28f2574a942268424d1cd734ecd59422933e2be0ceed0842d326cd890e6",
+      "fullName": "Ankit Kumar",
+      "createdAt": "2026-09-18 01:10:50",
+      "activeStrategy": "Z_SCORE",
+      "zScoreThreshold": 2.5,
+      "iqrMultiplier": 1.5
     }
   ],
   "accounts": [

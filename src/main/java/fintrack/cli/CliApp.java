@@ -81,7 +81,7 @@ public class CliApp {
     private static void loginPrompt(AuthService authService, Menu menu, AnomalyService anomalyService) {
         ConsoleUtil.printHeader("User Login");
         String username = ConsoleUtil.readString("Username");
-        String password = ConsoleUtil.readPassword("Password");
+        String password = ConsoleUtil.readPassword("Password (keystrokes hidden for security)");
 
         if (authService.login(username, password)) {
             ConsoleUtil.printSuccess("Welcome back, " + authService.getCurrentUser().getFullName() + "!");
@@ -107,7 +107,7 @@ public class CliApp {
         ConsoleUtil.printHeader("User Registration");
         String fullName = ConsoleUtil.readString("Full Name");
         String username = ConsoleUtil.readString("Choose Username (alphanumeric, 3-20 chars)");
-        String password = ConsoleUtil.readPassword("Choose Secure Password (min 6 characters)");
+        String password = ConsoleUtil.readPassword("Choose Secure Password (min 6 chars, typing hidden)");
 
         try {
             boolean success = authService.register(username, password, fullName);
